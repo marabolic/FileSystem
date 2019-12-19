@@ -1,6 +1,7 @@
 #include "KernelFS.h"
 
 
+Partition *KernelFS::mountedPart = nullptr;
 
 KernelFS::KernelFS()
 {
@@ -12,17 +13,34 @@ KernelFS::~KernelFS()
 }
 
 char KernelFS::mount(Partition* partition) {
-	if (mountedPart != nullptr) {
-		 
+	if (mountedPart == nullptr) {
+		mountedPart = partition;
+		return '1';
 	}
+	else {
+		//TODO: block threads 
+		return '0';
+	}
+
 }
 
 char KernelFS::unmount() {
-
+	if (mountedPart != nullptr) {
+		mountedPart = nullptr;
+		return '1';
+	}
+	else {
+		return '0';
+	}
 }
 
 char KernelFS::format() {
+	//if (numOfOpen != 0) {
+		//wait
+	//}
 
+	section->bv->format();
+	//init root
 }
 
 FileCnt KernelFS::readRootDir() {
