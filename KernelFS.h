@@ -40,12 +40,6 @@ class KernelFS
 {
 public:
 
-	
-
-
-	
-
-
 	static Sections * section;
 
 	~KernelFS();
@@ -56,8 +50,12 @@ public:
 	static FileCnt readRootDir();
 	static char doesExist(char* fname);
 
-	static File* open(char* fname, char mode);
+	static KernelFile* getFile(char* fname);
+
+	static KernelFile* open(char* fname, char mode);
 	static char deleteFile(char* fname);
+	
+
 protected:
 	friend class FS;
 	KernelFS();

@@ -1,15 +1,15 @@
 #include "KernelFS.h"
+#include "KernelFile.h"
 
 
 Partition *KernelFS::mountedPart = nullptr;
 
-KernelFS::KernelFS()
-{
+KernelFS::KernelFS() {
 	mountedPart = nullptr;
 }
 
-KernelFS::~KernelFS()
-{
+KernelFS::~KernelFS() {
+	delete mountedPart;
 }
 
 char KernelFS::mount(Partition* partition) {
@@ -51,8 +51,42 @@ char KernelFS::doesExist(char* fname) {
 
 }
 
-File* KernelFS::open(char* fname, char mode) {
+KernelFile* getFile(char* fname) {
 
+}
+
+KernelFile* KernelFS::open(char* fname, char mode) {
+	switch (mode) {
+		case 'r': 
+			if (!doesExist(fname)) {
+				//throw exception
+				return nullptr;
+			}
+			else {
+				KernelFile * file = new File();
+				file->isReadOnly = true;
+			}
+			break;
+		case 'w': 
+			if (doesExist(fname)) {
+				deleteFile(fname);
+			}
+			KernelFile* file = new File();
+			file->iswriteOnly = true;
+			break;
+		case 'a':
+			if (!doesExist(fname)) {
+				//throw exception
+				return nullptr;
+			}
+			KernelFile * file = getFile(fname);
+			file->isReadAndWrite = true;
+			break;
+		default: 
+			//throw exception
+			return nullptr;
+	}
+	return file;
 }
 
 char KernelFS::deleteFile(char* fname) {

@@ -3,7 +3,9 @@
 
 
 KernelFile::KernelFile() {
-
+	isReadAndWrite = false;
+	isReadOnly = false;
+	isWriteOnly = false;
 }
 
 KernelFile::~KernelFile() {
