@@ -1,6 +1,6 @@
 #pragma once
 #include "fs.h"
-
+#include "KernelFile.h"
 #include "particija-VS2017/part.h"
 class KernelFS;
 class Partition;
@@ -9,16 +9,6 @@ class Index1;
 
 
 typedef char byte;
-
-struct BitVector {
-	byte bitvect[ClusterSize];
-
-	void format() {
-		for (int i = 0; i < ClusterSize; i++){
-			bitvect[i] = 0;
-		}
-	}
-};
 
 struct HeaderFields {
 	byte name[8];
@@ -29,11 +19,26 @@ struct HeaderFields {
 	byte freeBytes[12];
 };
 
+struct BitVector {
+	byte bitvect[ClusterSize / sizeof(int) * ClusterSize / sizeof(int) * ClusterSize / sizeof(HeaderFields)];
+
+	void format() {
+		for (int i = 0; i < ClusterSize; i++) {
+			bitvect[i] = 0;
+		}
+	}
+
+	void clearBit() {
+
+	}
+
+};
+
 struct  Sections {
-	BitVector *bv;
-	int *ind1[ClusterSize / sizeof(int)];
-	int *ind2[ClusterSize / sizeof(int)];
-	HeaderFields data[ClusterSize / sizeof(HeaderFields)];
+	BitVector * bv;
+	int *ind1[ClusterSize / sizeof(int)]; //2048 / 4 = 512
+	int *ind2[ClusterSize / sizeof(int)]; //2048 / 4 = 512
+	HeaderFields data[ClusterSize / sizeof(HeaderFields)]; //2048 / 32 = 64
 };
 
 class KernelFS
@@ -50,7 +55,8 @@ public:
 	static FileCnt readRootDir();
 	static char doesExist(char* fname);
 
-	static KernelFile* getFile(char* fname);
+	static KernelFile * getFile(char* fname);
+	static void scan();
 
 	static KernelFile* open(char* fname, char mode);
 	static char deleteFile(char* fname);

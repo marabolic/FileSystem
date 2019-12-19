@@ -17,7 +17,7 @@ public:
 	BytesCnt getFileSize();
 	char truncate();
 private:
-	friend class FS;
+	friend class KernelFS;
 	friend class File;
 	KernelFile();
 

@@ -1,5 +1,6 @@
 #include "KernelFS.h"
 #include "KernelFile.h"
+#include "javniTest/testprimer.h"
 
 
 Partition *KernelFS::mountedPart = nullptr;
@@ -41,6 +42,10 @@ char KernelFS::format() {
 
 	section->bv->format();
 	//init root
+	for (int i = 0; i < ClusterSize / sizeof(int); i++) {
+		section->ind1[i] = 0;
+	}
+	
 }
 
 FileCnt KernelFS::readRootDir() {
@@ -51,11 +56,12 @@ char KernelFS::doesExist(char* fname) {
 
 }
 
-KernelFile* getFile(char* fname) {
+KernelFile* KernelFS::getFile(char* fname) {
 
 }
 
 KernelFile* KernelFS::open(char* fname, char mode) {
+	KernelFile * file;
 	switch (mode) {
 		case 'r': 
 			if (!doesExist(fname)) {
@@ -63,7 +69,7 @@ KernelFile* KernelFS::open(char* fname, char mode) {
 				return nullptr;
 			}
 			else {
-				KernelFile * file = new File();
+				file = new KernelFile();
 				file->isReadOnly = true;
 			}
 			break;
@@ -71,15 +77,15 @@ KernelFile* KernelFS::open(char* fname, char mode) {
 			if (doesExist(fname)) {
 				deleteFile(fname);
 			}
-			KernelFile* file = new File();
-			file->iswriteOnly = true;
+			file = new KernelFile();
+			file->isWriteOnly = true;
 			break;
 		case 'a':
 			if (!doesExist(fname)) {
 				//throw exception
 				return nullptr;
 			}
-			KernelFile * file = getFile(fname);
+			file = getFile(fname);
 			file->isReadAndWrite = true;
 			break;
 		default: 
@@ -91,4 +97,10 @@ KernelFile* KernelFS::open(char* fname, char mode) {
 
 char KernelFS::deleteFile(char* fname) {
 
+}
+
+
+
+void KernelFS::scan() {
+	
 }
