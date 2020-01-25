@@ -1,8 +1,8 @@
 #pragma once
 
-#include"fs.h"
-#include"file.h"
-#include"part.h"
+#include"C:\Users\makib\source\repos\FileSystem\fs.h"
+#include"C:\Users\makib\source\repos\FileSystem\file.h"
+#include"C:\Users\makib\source\repos\FileSystem\particija-VS2017\part.h"
 
 #include<iostream>
 #include<fstream>

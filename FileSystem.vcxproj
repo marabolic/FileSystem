@@ -22,32 +22,32 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{A14C59EB-A12F-496B-93B7-1FEC510516E4}</ProjectGuid>
     <RootNamespace>FileSystem</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -115,17 +115,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BitVector.h" />
+    <ClInclude Include="CritSection.h" />
+    <ClInclude Include="Define.h" />
+    <ClInclude Include="Cache.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="fs.h" />
+    <ClInclude Include="javniTest\testprimer.h" />
     <ClInclude Include="KernelFile.h" />
     <ClInclude Include="KernelFS.h" />
+    <ClInclude Include="MMU.h" />
+    <ClInclude Include="OpenFileTable.h" />
     <ClInclude Include="particija-VS2017\part.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BitVector.cpp" />
+    <ClCompile Include="Cache.cpp" />
+    <ClCompile Include="CritSection.cpp" />
     <ClCompile Include="file.cpp" />
     <ClCompile Include="fs.cpp" />
+    <ClCompile Include="javniTest\main.cpp" />
+    <ClCompile Include="javniTest\nit1.cpp" />
+    <ClCompile Include="javniTest\nit2.cpp" />
     <ClCompile Include="KernelFile.cpp" />
     <ClCompile Include="KernelFS.cpp" />
+    <ClCompile Include="MMU.cpp" />
+    <ClCompile Include="OpenFileTable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="particija-VS2017\particija.lib" />

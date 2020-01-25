@@ -1,8 +1,14 @@
 #include "KernelFS.h"
+#include "OpenFileTable.h"
 #include "KernelFile.h"
+#include "javniTest/testprimer.h"
 
 
-Partition *KernelFS::mountedPart = nullptr;
+
+Partition * KernelFS::mountedPart = nullptr;
+CONDITION_VARIABLE ConditionVar;
+CritSection* KernelFS::cs = cs = nullptr;
+
 
 KernelFS::KernelFS() {
 	mountedPart = nullptr;
@@ -10,23 +16,33 @@ KernelFS::KernelFS() {
 
 KernelFS::~KernelFS() {
 	delete mountedPart;
+	delete cs;
 }
 
-char KernelFS::mount(Partition* partition) {
+char KernelFS::mount(Partition * partition) {
 	if (mountedPart == nullptr) {
-		mountedPart = partition;
+		cs->enter();
+		if (mountedPart == nullptr) {
+			mountedPart = partition;
+			openFiles = new OpenFileTable();
+			//open root dir 
+			
+		}
+		cs->exit();
 		return '1';
 	}
 	else {
-		//TODO: block threads 
 		return '0';
 	}
-
 }
 
 char KernelFS::unmount() {
+
 	if (mountedPart != nullptr) {
+		cs->enter();
 		mountedPart = nullptr;
+		openFiles->closeAll();
+		cs->exit();
 		return '1';
 	}
 	else {
@@ -35,12 +51,17 @@ char KernelFS::unmount() {
 }
 
 char KernelFS::format() {
-	//if (numOfOpen != 0) {
+	if (openFiles->numOfOpen() != 0) {
 		//wait
-	//}
+	}
 
-	section->bv->format();
+	bitVector.format();
 	//init root
+	for (ClusterNo i = 0; i <INDEX_SIZE; i++) {
+		index1[i] = 0;
+	}
+
+	
 }
 
 FileCnt KernelFS::readRootDir() {
@@ -51,11 +72,15 @@ char KernelFS::doesExist(char* fname) {
 
 }
 
-KernelFile* getFile(char* fname) {
+File* KernelFS::getFile(char* fname) {
 
 }
 
-KernelFile* KernelFS::open(char* fname, char mode) {
+File* KernelFS::open(char* fname, char mode) {
+	//u index1Addr upisem iz Headera
+
+	File * file = nullptr;
+	KernelFile* kfile = nullptr;
 	switch (mode) {
 		case 'r': 
 			if (!doesExist(fname)) {
@@ -63,24 +88,24 @@ KernelFile* KernelFS::open(char* fname, char mode) {
 				return nullptr;
 			}
 			else {
-				KernelFile * file = new File();
-				file->isReadOnly = true;
+				kfile = new KernelFile();
+				kfile->mode = READONLY;
 			}
 			break;
 		case 'w': 
 			if (doesExist(fname)) {
 				deleteFile(fname);
 			}
-			KernelFile* file = new File();
-			file->iswriteOnly = true;
+			kfile = new KernelFile();
+			kfile->mode = WRITEONLY;
 			break;
 		case 'a':
 			if (!doesExist(fname)) {
 				//throw exception
 				return nullptr;
 			}
-			KernelFile * file = getFile(fname);
-			file->isReadAndWrite = true;
+			file = getFile(fname);
+			kfile->mode = READANDWRITE;
 			break;
 		default: 
 			//throw exception
@@ -90,5 +115,18 @@ KernelFile* KernelFS::open(char* fname, char mode) {
 }
 
 char KernelFS::deleteFile(char* fname) {
+
+}
+ 
+
+void KernelFS::scan() {
+	for (ClusterNo ind1 = 0; ind1 < INDEX_SIZE; ind1++) {
+		if (index1[ind1] == 0) {
+			continue;
+		}
+		for (ClusterNo ind2 = 0; ind2 < INDEX_SIZE; ind2++) {
+
+		}
+	}
 
 }

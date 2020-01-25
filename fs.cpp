@@ -10,7 +10,7 @@ FS::~FS() {
 	delete myImpl;
 }
 
-char FS::mount(Partition* partition) {
+char FS::mount(Partition* partition) { 
 	return myImpl->mount(partition);
 }
 
@@ -31,7 +31,7 @@ char FS::doesExist(char* fname) {
 }
 
 File* FS::open(char* fname, char mode) {
-	return myImpl->open(fname, mode);
+	//return myImpl->open(fname, mode);
 }
 
 char FS::deleteFile(char* fname) {
