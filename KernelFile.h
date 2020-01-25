@@ -14,12 +14,15 @@ public:
 	ClusterNo index2Addr;
 	ClusterNo index2[ClusterSize / sizeof(ClusterNo)];
 
-	HeaderFields dataAddr;
+	ClusterNo dataAddr;
 	HeaderFields data[ClusterSize / sizeof(HeaderFields)];
 
 	Mode mode;
 
 	~KernelFile();
+
+	void load(BytesCnt);
+
 	char write(BytesCnt, char* buffer);
 	BytesCnt read(BytesCnt, char* buffer);
 	char seek(BytesCnt);
@@ -28,7 +31,7 @@ public:
 	BytesCnt getFileSize();
 	char truncate();
 
-	HeaderFields load(BytesCnt bytesCnt, char* buffer);
+	
 
 private:
 	friend class KernelFS;

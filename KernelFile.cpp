@@ -19,22 +19,26 @@ KernelFile::~KernelFile() {
 
 }
 
-HeaderFields KernelFile::load(BytesCnt bytesCnt, char* buffer) {
+void KernelFile::load(BytesCnt bytesCnt){
 	KernelFS::mountedPart->readCluster(index1Addr, (char*)index1);
 	int entry = bytesCnt / ClusterSize;
 	KernelFS::mountedPart->readCluster(index1[entry], (char*)index2);
+	index2Addr = index1[entry];
 	entry = (512 * 512) / bytesCnt;
 	KernelFS::mountedPart->readCluster(index2[entry], (char*)data);
+	dataAddr = index2[entry];
 }
 
+
 char KernelFile::write(BytesCnt bytesCnt, char* buffer) {
-	//ucitam klastere u memoriju
-	load(bytesCnt, buffer);
-	//postavim kursor na prvi/poslednji bajt
+	seek(bytesCnt);
 	
 	//upisujem bajt po bajt
 	//dok ne dodjem do kraja klastera
+
 	//upisem klaster
+	//KernelFS::mountedPart->writeCluster();
+
 	//uzmem sledeci ako postoji i upisem u njega
 	//ako ne postoji, alociram novi -----------> alokacija nadjem slobodan bit u bit vektoru i postavim na 1, i indeks drugog nivoa i prvog azuriram
 	//upisem sve na disk 
@@ -42,15 +46,16 @@ char KernelFile::write(BytesCnt bytesCnt, char* buffer) {
 }
 
 BytesCnt KernelFile::read(BytesCnt bytesCnt, char* buffer) {
-	load(bytesCnt, buffer);
-	//pronadjem bajt po modulu 2048
-	byte cursor = bytesCnt % ClusterSize; 
+	seek(bytesCnt);
 	//prepisivanje
 
 
 }
 
 char KernelFile::seek(BytesCnt bytesCnt) {
+	load(bytesCnt);
+	//pronadjem bajt po modulu 2048
+	byte cursor = bytesCnt % ClusterSize;
 	
 }
 
