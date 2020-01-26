@@ -2,17 +2,18 @@
 #include "KernelFS.h"
 
 
-static ClusterNo allocate() {
+ClusterNo KernelFile::allocate() {
 	 
 }
 
-static void deallocate(ClusterNo clusterNo) {
+void KernelFile::deallocate(ClusterNo clusterNo) {
 	
 }
 
 
 KernelFile::KernelFile() {
 	//add to openfiletable
+
 }
 
 KernelFile::~KernelFile() {

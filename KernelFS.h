@@ -16,7 +16,7 @@ class CritSection;
 class Index1;
 
 
-typedef char byte;
+//typedef char byte;
 
 
 class KernelFS
@@ -34,7 +34,6 @@ public:
 	static HeaderFields header[DATA_SIZE];
 	static HeaderFields headerAddr;
 
-	static KernelFile rootDir;
 
 	static CritSection * cs;
 
@@ -47,7 +46,7 @@ public:
 	static char doesExist(char* fname);
 
 
-	static HeaderFields getFile(char* fname);
+	static File * getFile(char* fname, HeaderFields *);
 	static void scan();
 
 	static File* open(char* fname, char mode);

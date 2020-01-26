@@ -33,6 +33,8 @@ public:
 	BytesCnt getFileSize();
 	char truncate();
 
+	static ClusterNo allocate();
+	static void deallocate(ClusterNo);
 	
 
 private:

@@ -4,9 +4,11 @@
 class BitVector
 {
 private:
-	byte bitvect[ClusterSize];
+	char * bitvect;
 
 public:
+	BitVector();
+	~BitVector();
 	void format();
 	void clearBit();
 };

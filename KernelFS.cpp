@@ -72,8 +72,8 @@ FileCnt KernelFS::readRootDir() {
 	HeaderFields hf;
 	rootDir->seek(0);
 	while (!rootDir->eof()) {
-		rootDir->read(sizeof(HeaderFields), (char*)& hf);
-		if (!strcmp(hf.name, 0x00)) { //if not equal
+		rootDir->read(sizeof(HeaderFields), (char*)&hf);
+		if (hf.name != 0) { 
 			cnt++;
 		}
 	}
@@ -87,7 +87,7 @@ char KernelFS::doesExist(char* fname) {
 	rootDir->seek(0);
 	while (!rootDir->eof()) {
 		rootDir->read(sizeof(HeaderFields), (char*)& hf);
-		if (strcmp( hf.name , fname) ){
+		if (hf.name == fname){
 			return '1';
 		}
 	}
@@ -96,17 +96,17 @@ char KernelFS::doesExist(char* fname) {
 	return '0';
 }
 
-HeaderFields KernelFS::getFile(char* fname) {
-	FileCnt cnt = 0;
-	HeaderFields hf;
+File * KernelFS::getFile(char* fname, HeaderFields * hf) {
+	File* f;
 	rootDir->seek(0);
 	while (!rootDir->eof()) {
 		rootDir->read(sizeof(HeaderFields), (char*)& hf);
-		if (strcmp (hf.name, fname)) {
-			return hf;
+		if (hf->name == fname) {
+			//todo
+			return f;
 		}
 	}
-	return 0;
+	return nullptr;
 }
 
 File* KernelFS::open(char* fname, char mode) {
@@ -114,7 +114,7 @@ File* KernelFS::open(char* fname, char mode) {
 
 	File* file = new File();
 	KernelFile* kfile = file->myImpl;
-
+	ClusterNo newCluster;
 	switch (mode) {
 		case 'r': 
 			if (!doesExist(fname)) {
@@ -131,6 +131,8 @@ File* KernelFS::open(char* fname, char mode) {
 				deleteFile(fname);
 			}
 			//alloc - set bitvector
+			newCluster = KernelFile::allocate();
+
 			//set addr in header
 			//write in root dir - find first empty space - write(sizeof(HeaderFields), space)
 			kfile = new KernelFile();
@@ -142,7 +144,8 @@ File* KernelFS::open(char* fname, char mode) {
 				return nullptr;
 			}
 			kfile->mode = READANDWRITE;
-			file = getFile(fname);
+			HeaderFields * hf;
+			file = getFile(fname, hf);
 			file->seek(file->getFileSize());
 			break;
 		default: 
@@ -154,12 +157,12 @@ File* KernelFS::open(char* fname, char mode) {
 
 char KernelFS::deleteFile(char* fname) {
 	FileCnt cnt = 0;
-	HeaderFields hf;
+	HeaderFields * hf;
 	rootDir->seek(0);
 	while (!rootDir->eof()) {
 		rootDir->read(sizeof(HeaderFields), (char*)& hf);
-		if (strcmp(hf.name, fname)) {
-			 hf.name = 0x00;
+		if (hf->name == fname) {
+			//hf->name = 0;
 		}
 	}
 	return 0;
