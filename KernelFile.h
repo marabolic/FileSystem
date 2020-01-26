@@ -9,13 +9,15 @@ class KernelFile
 public:
 	
 	ClusterNo index1Addr;
-	ClusterNo index1[ClusterSize / sizeof(ClusterNo)];
+	ClusterNo index1[INDEX_SIZE];
 
 	ClusterNo index2Addr;
-	ClusterNo index2[ClusterSize / sizeof(ClusterNo)];
+	ClusterNo index2[INDEX_SIZE];
 
 	ClusterNo dataAddr;
-	HeaderFields data[ClusterSize / sizeof(HeaderFields)];
+	HeaderFields data[DATA_SIZE];
+	
+	byte cursor;
 
 	Mode mode;
 

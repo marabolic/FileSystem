@@ -12,11 +12,11 @@ static void deallocate(ClusterNo clusterNo) {
 
 
 KernelFile::KernelFile() {
-
+	//add to openfiletable
 }
 
 KernelFile::~KernelFile() {
-
+	//delete from openfiletable
 }
 
 void KernelFile::load(BytesCnt bytesCnt){
@@ -46,7 +46,7 @@ char KernelFile::write(BytesCnt bytesCnt, char* buffer) {
 }
 
 BytesCnt KernelFile::read(BytesCnt bytesCnt, char* buffer) {
-	seek(bytesCnt);
+	seek(0);
 	//prepisivanje
 
 
@@ -55,12 +55,12 @@ BytesCnt KernelFile::read(BytesCnt bytesCnt, char* buffer) {
 char KernelFile::seek(BytesCnt bytesCnt) {
 	load(bytesCnt);
 	//pronadjem bajt po modulu 2048
-	byte cursor = bytesCnt % ClusterSize;
+	cursor = bytesCnt % ClusterSize;
 	
 }
 
 BytesCnt KernelFile::filePos() {
-
+	return cursor;
 }
 
 char KernelFile::eof() {

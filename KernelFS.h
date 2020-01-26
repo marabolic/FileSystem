@@ -25,11 +25,16 @@ public:
 
 	static BitVector bitVector;
 
-	static ClusterNo index1[ClusterSize / sizeof(ClusterNo)];
+	static ClusterNo index1[INDEX_SIZE];
 	static ClusterNo index1Addr;
 
-	static ClusterNo index2[ClusterSize / sizeof(ClusterNo)];
+	static ClusterNo index2[INDEX_SIZE];
 	static ClusterNo index2Addr;
+
+	static HeaderFields header[DATA_SIZE];
+	static HeaderFields headerAddr;
+
+	static KernelFile rootDir;
 
 	static CritSection * cs;
 
@@ -42,7 +47,7 @@ public:
 	static char doesExist(char* fname);
 
 
-	static File * getFile(char* fname);
+	static HeaderFields getFile(char* fname);
 	static void scan();
 
 	static File* open(char* fname, char mode);

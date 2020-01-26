@@ -3,17 +3,14 @@
 #include <algorithm>
 
 OpenFileTable::OpenFileTable() {
-	
 	numOpen = 0;
 }
 OpenFileTable::~OpenFileTable() {
-	
+	closeAll();
 }
 
 bool OpenFileTable::openFile(KernelFile* file) {
-
 	numOpen++;
-	
 }
 long OpenFileTable::numOfOpen() {
 	return numOpen;
@@ -21,4 +18,5 @@ long OpenFileTable::numOfOpen() {
 
 void OpenFileTable::closeFile(KernelFile* file) {
 	fileTable.erase(std::remove(fileTable.begin(), fileTable.end(), file), fileTable.end()); 
+	numOpen--;
 }
