@@ -96,19 +96,6 @@ char KernelFS::doesExist(char* fname) {
 	return '0';
 }
 
-File * KernelFS::getFile(char* fname, HeaderFields * hf) {
-	File* f;
-	rootDir->seek(0);
-	while (!rootDir->eof()) {
-		rootDir->read(sizeof(HeaderFields), (char*)& hf);
-		if (hf->name == fname) {
-			//todo
-			return f;
-		}
-	}
-	return nullptr;
-}
-
 File* KernelFS::open(char* fname, char mode) {
 	//u index1Addr upisem iz Headera
 
@@ -137,6 +124,7 @@ File* KernelFS::open(char* fname, char mode) {
 			//write in root dir - find first empty space - write(sizeof(HeaderFields), space)
 			kfile = new KernelFile();
 			kfile->mode = WRITEONLY;
+			kfile->seek(0);
 			break;
 		case 'a':
 			if (!doesExist(fname)) {
@@ -169,6 +157,22 @@ char KernelFS::deleteFile(char* fname) {
 				
 }
  
+
+
+
+
+File* KernelFS::getFile(char* fname, HeaderFields* hf) {
+	File* f;
+	rootDir->seek(0);
+	while (!rootDir->eof()) {
+		rootDir->read(sizeof(HeaderFields), (char*)& hf);
+		if (hf->name == fname) {
+			//todo
+			return f;
+		}
+	}
+	return nullptr;
+}
 
 void KernelFS::scan() {
 	for (ClusterNo ind1 = 0; ind1 < INDEX_SIZE; ind1++) {

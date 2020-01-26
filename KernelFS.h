@@ -44,13 +44,12 @@ public:
 	static char format();
 	static FileCnt readRootDir();
 	static char doesExist(char* fname);
-
-
-	static File * getFile(char* fname, HeaderFields *);
-	static void scan();
-
 	static File* open(char* fname, char mode);
 	static char deleteFile(char* fname);
+
+	//my methods
+	static File* getFile(char* fname, HeaderFields*);
+	static void scan();
 	
 protected:
 	friend class FS;

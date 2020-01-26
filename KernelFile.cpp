@@ -2,37 +2,20 @@
 #include "KernelFS.h"
 
 
-ClusterNo KernelFile::allocate() {
-	 
-}
-
-void KernelFile::deallocate(ClusterNo clusterNo) {
-	
-}
 
 
 KernelFile::KernelFile() {
-	//add to openfiletable
+	KernelFS::openFiles->openFile(this);
 
 }
 
 KernelFile::~KernelFile() {
-	//delete from openfiletable
+	KernelFS::openFiles->closeFile(this);
 }
 
-void KernelFile::load(BytesCnt bytesCnt){
-	KernelFS::mountedPart->readCluster(index1Addr, (char*)index1);
-	int entry = bytesCnt / ClusterSize;
-	KernelFS::mountedPart->readCluster(index1[entry], (char*)index2);
-	index2Addr = index1[entry];
-	entry = (512 * 512) / bytesCnt;
-	KernelFS::mountedPart->readCluster(index2[entry], (char*)data);
-	dataAddr = index2[entry];
-}
-
+ 
 
 char KernelFile::write(BytesCnt bytesCnt, char* buffer) {
-	seek(bytesCnt);
 	
 	//upisujem bajt po bajt
 	//dok ne dodjem do kraja klastera
@@ -47,7 +30,6 @@ char KernelFile::write(BytesCnt bytesCnt, char* buffer) {
 }
 
 BytesCnt KernelFile::read(BytesCnt bytesCnt, char* buffer) {
-	seek(0);
 	//prepisivanje
 
 
@@ -76,4 +58,32 @@ char KernelFile::truncate() {
 	//deallocate sve klastere sa podacima
 	//i sve indekse2
 	//a ulaze indeksa1 postaviti na 0
+}
+
+
+
+void KernelFile::load(BytesCnt bytesCnt) {
+	KernelFS::mountedPart->readCluster(index1Addr, (char*)index1);
+	int entry = bytesCnt / ClusterSize;
+	KernelFS::mountedPart->readCluster(index1[entry], (char*)index2);
+	index2Addr = index1[entry];
+	entry = (512 * 512) / bytesCnt;
+	KernelFS::mountedPart->readCluster(index2[entry], (char*)data);
+	dataAddr = index2[entry];
+}
+
+bool KernelFile::writeByte(char* c) {
+
+}
+
+bool KernelFile::readByte(char* c) {
+
+}
+
+ClusterNo KernelFile::allocate() {
+	//find first empty in bitVector and return entry address
+}
+
+void KernelFile::deallocate(ClusterNo clusterNo) {
+	//remove entry from bitVector
 }

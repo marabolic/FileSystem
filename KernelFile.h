@@ -23,7 +23,7 @@ public:
 
 	~KernelFile();
 
-	void load(BytesCnt);
+
 
 	char write(BytesCnt, char* buffer);
 	BytesCnt read(BytesCnt, char* buffer);
@@ -32,6 +32,13 @@ public:
 	char eof();  
 	BytesCnt getFileSize();
 	char truncate();
+
+
+
+	void load(BytesCnt);
+	bool writeByte(char*);
+	bool readByte(char*);
+
 
 	static ClusterNo allocate();
 	static void deallocate(ClusterNo);
