@@ -1,30 +1,24 @@
 ﻿  BitVector.cpp
   Cache.cpp
-  CritSection.cpp
   file.cpp
   fs.cpp
-  main.cpp
-C:\Users\makib\source\repos\FileSystem\javniTest\main.cpp(31,49): warning C4267:  '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\makib\source\repos\FileSystem\javniTest\main.cpp(24,1): warning C4996:  'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  nit1.cpp
-  nit2.cpp
   KernelFile.cpp
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.17763.0\ucrt\stdio.h(208): message :  see declaration of 'fopen'
   KernelFS.cpp
-  MMU.cpp
-  OpenFileTable.cpp
   Generating Code...
-C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(59,20): warning C4244:  '=': conversion from 'unsigned long' to 'byte', possible loss of data
-C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(59,20): warning C4244: C:\Users\makib\source\repos\FileSystem\OpenFileTable.cpp(14) : error C4716: 'OpenFileTable::openFile': must return a value
-C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(59,20): warning C4244: C:\Users\makib\source\repos\FileSystem\KernelFS.cpp(68) : error C4716: 'KernelFS::format': must return a value
-C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(59,20): warning C4244: C:\Users\makib\source\repos\FileSystem\KernelFS.cpp(106) : warning C4700: uninitialized local variable 'f' used
-C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(59,20): warning C4244: C:\Users\makib\source\repos\FileSystem\KernelFS.cpp(148) : warning C4700: uninitialized local variable 'hf' used
-C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(59,20): warning C4244: C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(7) : error C4716: 'KernelFile::allocate': must return a value
-C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(59,20): warning C4244: C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(47) : error C4716: 'KernelFile::write': must return a value
-C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(59,20): warning C4244: C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(54) : error C4716: 'KernelFile::read': must return a value
-C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(59,20): warning C4244: C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(69) : error C4716: 'KernelFile::eof': must return a value
-C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(59,20): warning C4244: C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(61) : error C4716: 'KernelFile::seek': must return a value
-C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(59,20): warning C4244: C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(73) : error C4716: 'KernelFile::getFileSize': must return a value
-C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(59,20): warning C4244: C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(79) : error C4716: 'KernelFile::truncate': must return a value
-C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(59,20): warning C4244: C:\Users\makib\source\repos\FileSystem\fs.cpp(35) : error C4716: 'FS::open': must return a value
+  C:\Users\makib\source\repos\FileSystem\KernelFS.cpp(52) : error C4716: 'KernelFS::format': must return a value
+  C:\Users\makib\source\repos\FileSystem\KernelFS.cpp(60) : error C4716: 'KernelFS::doesExist': must return a value
+  C:\Users\makib\source\repos\FileSystem\KernelFS.cpp(64) : error C4716: 'KernelFS::open': must return a value
+  C:\Users\makib\source\repos\FileSystem\KernelFS.cpp(56) : error C4716: 'KernelFS::readRootDir': must return a value
+  C:\Users\makib\source\repos\FileSystem\KernelFS.cpp(69) : error C4716: 'KernelFS::deleteFile': must return a value
+  C:\Users\makib\source\repos\FileSystem\KernelFS.cpp(77) : error C4716: 'KernelFS::getFile': must return a value
+  C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(19) : error C4716: 'KernelFile::write': must return a value
+  C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(25) : error C4716: 'KernelFile::read': must return a value
+  C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(30) : error C4716: 'KernelFile::seek': must return a value
+  C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(38) : error C4716: 'KernelFile::eof': must return a value
+  C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(42) : error C4716: 'KernelFile::getFileSize': must return a value
+  C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(46) : error C4716: 'KernelFile::truncate': must return a value
+  C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(56) : error C4716: 'KernelFile::writeByte': must return a value
+  C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(60) : error C4716: 'KernelFile::readByte': must return a value
+  C:\Users\makib\source\repos\FileSystem\KernelFile.cpp(64) : error C4716: 'KernelFile::allocate': must return a value
+  C:\Users\makib\source\repos\FileSystem\fs.cpp(35) : error C4716: 'FS::open': must return a value
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppCommon.targets(429,5): error MSB6006: "CL.exe" exited with code 2.

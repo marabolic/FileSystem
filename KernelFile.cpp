@@ -5,40 +5,41 @@
 
 
 KernelFile::KernelFile() {
-	KernelFS::openFiles->openFile(this);
-
+	cursor = 0;
 }
 
 KernelFile::~KernelFile() {
-	KernelFS::openFiles->closeFile(this);
+
 }
 
  
 
 char KernelFile::write(BytesCnt bytesCnt, char* buffer) {
-	
-	//upisujem bajt po bajt
-	//dok ne dodjem do kraja klastera
-
-	//upisem klaster
-	//KernelFS::mountedPart->writeCluster();
-
-	//uzmem sledeci ako postoji i upisem u njega
-	//ako ne postoji, alociram novi -----------> alokacija nadjem slobodan bit u bit vektoru i postavim na 1, i indeks drugog nivoa i prvog azuriram
-	//upisem sve na disk 
-	
+	for (BytesCnt i = 0; i < bytesCnt; i++) {
+		if (! eof())
+			writeByte(buffer, i);
+		else {
+			if (canExtend()) {
+				extend();
+			}
+		}
+	}
 }
 
-BytesCnt KernelFile::read(BytesCnt bytesCnt, char* buffer) {
-	//prepisivanje
+BytesCnt KernelFile::read(BytesCnt bytesCnt, char* buffer) { //done
+	for (BytesCnt i = 0; i < bytesCnt; i++) {
+		if (!eof())
+			buffer[i] = readByte();
+	}
+
+	return bytesCnt; 
 
 
 }
 
 char KernelFile::seek(BytesCnt bytesCnt) {
 	load(bytesCnt);
-	//pronadjem bajt po modulu 2048
-	cursor = bytesCnt % ClusterSize;
+	cursor = bytesCnt;
 	
 }
 
@@ -47,37 +48,64 @@ BytesCnt KernelFile::filePos() {
 }
 
 char KernelFile::eof() {
-
+	return cursor == getFileSize();
 }
 
 BytesCnt KernelFile::getFileSize() { 
-
+	return fileSize;
 }
 
 char KernelFile::truncate() {
-	//deallocate sve klastere sa podacima
-	//i sve indekse2
-	//a ulaze indeksa1 postaviti na 0
+	
 }
 
 
 
 void KernelFile::load(BytesCnt bytesCnt) {
+	EnterCriticalSection(&KernelFS::cs);
 	KernelFS::mountedPart->readCluster(index1Addr, (char*)index1);
-	int entry = bytesCnt / ClusterSize;
-	KernelFS::mountedPart->readCluster(index1[entry], (char*)index2);
-	index2Addr = index1[entry];
-	entry = (512 * 512) / bytesCnt;
-	KernelFS::mountedPart->readCluster(index2[entry], (char*)data);
-	dataAddr = index2[entry];
+	LeaveCriticalSection(&KernelFS::cs);
+
+	Ind1Entry = bytesCnt / (INDEX_SIZE * ClusterSize);
+	index2Addr = index1[Ind1Entry];
+
+	EnterCriticalSection(&KernelFS::cs);
+	KernelFS::mountedPart->readCluster(index2Addr, (char*)index2);
+	LeaveCriticalSection(&KernelFS::cs);
+
+	Ind2Entry = (bytesCnt % (INDEX_SIZE * ClusterSize)) / ClusterSize;
+	dataAddr = index2[Ind2Entry];
+
+	EnterCriticalSection(&KernelFS::cs);
+	KernelFS::mountedPart->readCluster(dataAddr, (char*)data);
+	LeaveCriticalSection(&KernelFS::cs);
+
+	dataBytePointer = (bytesCnt % (INDEX_SIZE * ClusterSize)) % ClusterSize;
+
 }
 
-bool KernelFile::writeByte(char* c) {
-
+void KernelFile::writeByte(char* buff, int i) {
+	data[dataBytePointer] = buff[i];
+	cursor++;
+	seek(cursor);
 }
 
-bool KernelFile::readByte(char* c) {
+char KernelFile::readByte() {
+	char c = data[dataBytePointer];
+	cursor++;
+	seek(cursor); 
+	return c;
+}
 
+bool KernelFile::canExtend()
+{
+	if (fileSize < UINT_MAX)
+		return true;
+	return false;
+}
+
+void KernelFile::extend() {
+	 
 }
 
 ClusterNo KernelFile::allocate() {

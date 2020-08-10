@@ -1,8 +1,8 @@
 #include "Cache.h"
 
 
-Cache::Cache(char * name) {
-	partition = new Partition(name);
+Cache::Cache(Partition * partition) {
+	this->partition = partition;
 }
 Cache::~Cache() {
 	delete partition;

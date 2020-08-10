@@ -1,15 +1,20 @@
 #pragma once
 #include "Define.h"
+#include <vector>
+using namespace std;
 
 class BitVector
 {
 private:
-	char * bitvect;
+
+	BitVector* next;
 
 public:
 	BitVector();
 	~BitVector();
 	void format();
 	void clearBit();
+	int size();
+	void init();
 };
 

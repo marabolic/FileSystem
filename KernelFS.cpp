@@ -1,13 +1,10 @@
 #include "KernelFS.h"
-#include "OpenFileTable.h"
 #include "KernelFile.h"
-#include "javniTest/testprimer.h"
 
 
 
-Partition * KernelFS::mountedPart = nullptr;
-CONDITION_VARIABLE ConditionVar;
-CritSection* KernelFS::cs = nullptr;
+
+Cache * KernelFS::mountedPart = nullptr;
 
 
 KernelFS::KernelFS() {
@@ -20,15 +17,12 @@ KernelFS::~KernelFS() {
 
 char KernelFS::mount(Partition * partition) {
 	if (mountedPart == nullptr) {
-		cs = new CritSection();
-		cs->enter();
+		EnterCriticalSection(&cs);
 		if (mountedPart == nullptr) {
-			mountedPart = partition;
-			openFiles = new OpenFileTable();
-			//open root dir
-			//bit vector init
+			mountedPart = new Cache(partition);
 		}
-		cs->exit();
+
+		LeaveCriticalSection(&cs);
 		return '1';
 	}
 	else {
@@ -37,16 +31,11 @@ char KernelFS::mount(Partition * partition) {
 }
 
 char KernelFS::unmount() {
-	
 	if (mountedPart != nullptr) {
-		cs->enter();
+		EnterCriticalSection(&cs);
 		mountedPart = nullptr;
-		delete openFiles;
-		//bitvector write
-		//close rootDir
 		delete mountedPart;
-		cs->exit();
-		delete cs;
+		LeaveCriticalSection(&cs);
 		return '1';
 	}
 	else {
@@ -55,105 +44,133 @@ char KernelFS::unmount() {
 }
 
 char KernelFS::format() {
-	cs->enter();
-	if (openFiles->numOfOpen() != 0) {
-		//wait
-	}
-	bitVector.format();
-	//set index of root to null 
-	for (ClusterNo i = 0; i <INDEX_SIZE; i++) {
+	EnterCriticalSection(&cs);
+	bitVector.init();
+	for (int i = 0; i < INDEX_SIZE; i++)
+	{
 		index1[i] = 0;
 	}
-	cs->exit();
+	rootDir = new KernelFile();
+	LeaveCriticalSection(&cs);
 }
 
 FileCnt KernelFS::readRootDir() {
-	FileCnt cnt = 0;
-	HeaderFields hf;
-	rootDir->seek(0);
-	while (!rootDir->eof()) {
-		rootDir->read(sizeof(HeaderFields), (char*)&hf);
-		if (hf.name != 0) { 
-			cnt++;
+	FileCnt count = 0;
+	for (BytesCnt i = 0; i < INDEX_SIZE * INDEX_SIZE * DATA_SIZE; i++)
+	{
+		load(i);
+		if (header[i].name) {
+			count++;
 		}
 	}
-
-	return cnt;
-}
+	return count;
+} 
 
 char KernelFS::doesExist(char* fname) {
-	FileCnt cnt = 0;
-	HeaderFields hf;
-	rootDir->seek(0);
-	while (!rootDir->eof()) {
-		rootDir->read(sizeof(HeaderFields), (char*)& hf);
-		if (hf.name == fname){
-			return '1';
+	char found = '0';
+	EnterCriticalSection(&cs);
+	KernelFS::mountedPart->readCluster(index1Addr, (char*)index1);
+	LeaveCriticalSection(&KernelFS::cs);
+
+	for (ClusterNo i = 0; i < INDEX_SIZE; i++)
+	{
+		index2Addr = index1[i];
+		if (index1Addr != 0) {
+
+			EnterCriticalSection(&KernelFS::cs);
+			KernelFS::mountedPart->readCluster(index2Addr, (char*)index2);
+			LeaveCriticalSection(&KernelFS::cs);
+
+			for (ClusterNo j = 0; j < INDEX_SIZE; j++)
+			{
+				headerAddr = index2[j];
+				if (index2Addr != 0) {
+
+					EnterCriticalSection(&KernelFS::cs);
+					KernelFS::mountedPart->readCluster(headerAddr, (char*)header);
+					LeaveCriticalSection(&KernelFS::cs);
+
+					for (ClusterNo k = 0; k < DATA_SIZE; k++)
+					{
+						if (header[k].name == fname) {
+							found = '1';
+							headerPointer = k;
+						}
+					}
+				}
+			}
 		}
 	}
-						
-				
-	return '0';
+	return found;
 }
 
 File* KernelFS::open(char* fname, char mode) {
-	//u index1Addr upisem iz Headera
+	
+	char exists = doesExist(fname);
 
-	File* file = new File();
-	KernelFile* kfile = file->myImpl;
-	ClusterNo newCluster;
-	switch (mode) {
-		case 'r': 
-			if (!doesExist(fname)) {
-				//throw exception
-				return nullptr;
-			}
-			else {
-				kfile->mode = READONLY;
-				kfile->seek(0);
-			}
-			break;
-		case 'w': 
-			if (doesExist(fname)) {
-				deleteFile(fname);
-			}
-			//alloc - set bitvector
-			newCluster = KernelFile::allocate();
+	KernelFile* file = new KernelFile();
+	//file->index1Addr = header[headerPointer].ind1;
 
-			//set addr in header
-			//write in root dir - find first empty space - write(sizeof(HeaderFields), space)
-			kfile = new KernelFile();
-			kfile->mode = WRITEONLY;
-			kfile->seek(0);
-			break;
-		case 'a':
-			if (!doesExist(fname)) {
-				//throw exception
-				return nullptr;
-			}
-			kfile->mode = READANDWRITE;
-			HeaderFields * hf;
-			file = getFile(fname, hf);
-			file->seek(file->getFileSize());
-			break;
-		default: 
-			//throw exception
+	switch (mode)
+	{
+	case 'r': 
+		if (exists == '0') {
 			return nullptr;
+		}
+		if (openFileTable.count(headerPointer) == 0) {
+			OpenFiles* openfile = new OpenFiles();
+			openfile->reading++;
+			openFileTable.insert(pair<int, OpenFiles*>(headerPointer, openfile));
+		}
+		else {
+			openFileTable[headerPointer]->reading++;
+		}
+
+		break;
+	case 'w':
+		if (exists == '1') {
+			deleteFile(fname);
+		}
+		if (openFileTable.count(headerPointer) == 0) {
+			OpenFiles* openfile = new OpenFiles();
+			openfile->writing++;
+			openFileTable.insert(pair<int, OpenFiles*>(headerPointer, openfile));
+		}
+		else {
+			//wait  ---- can't write
+			openFileTable[headerPointer]->writing++; 
+			
+		}
+		//new file
+		//add to map
+		break;
+	case 'a':
+		if (exists == '0') {
+			return nullptr;
+		}
+		if (openFileTable.count(headerPointer) == 0) {  
+			OpenFiles* openfile = new OpenFiles();
+			openfile->writing++;
+			openFileTable.insert(pair<int, OpenFiles*>(headerPointer, openfile));
+		}
+		file->seek(header[headerAddr].fileSize);
+
+		break;
+	default:
+		//error
+		break;
 	}
-	return file;
+
+	 
 }
 
 char KernelFS::deleteFile(char* fname) {
-	FileCnt cnt = 0;
-	HeaderFields * hf;
-	rootDir->seek(0);
-	while (!rootDir->eof()) {
-		rootDir->read(sizeof(HeaderFields), (char*)& hf);
-		if (hf->name == fname) {
-			//hf->name = 0;
-		}
+	char exists = doesExist(fname);
+	if (exists == '1'){
+		KernelFile * file = new KernelFile();
+		file->seek(0);
+		file->truncate();
 	}
-	return 0;
 				
 }
  
@@ -162,26 +179,33 @@ char KernelFS::deleteFile(char* fname) {
 
 
 File* KernelFS::getFile(char* fname, HeaderFields* hf) {
-	File* f;
-	rootDir->seek(0);
-	while (!rootDir->eof()) {
-		rootDir->read(sizeof(HeaderFields), (char*)& hf);
-		if (hf->name == fname) {
-			//todo
-			return f;
-		}
-	}
-	return nullptr;
+	
 }
+
 
 void KernelFS::scan() {
-	for (ClusterNo ind1 = 0; ind1 < INDEX_SIZE; ind1++) {
-		if (index1[ind1] == 0) {
-			continue;
-		}
-		for (ClusterNo ind2 = 0; ind2 < INDEX_SIZE; ind2++) {
-
-		}
-	}
 
 }
+
+void KernelFS::load(BytesCnt bytesCnt) {
+	EnterCriticalSection(&cs);
+	KernelFS::mountedPart->readCluster(index1Addr, (char*)index1);
+	LeaveCriticalSection(&KernelFS::cs);
+
+	Ind1Entry = bytesCnt / (INDEX_SIZE * ClusterSize);
+	index2Addr = index1[Ind1Entry];
+
+	EnterCriticalSection(&KernelFS::cs);
+	KernelFS::mountedPart->readCluster(index2Addr, (char*)index2);
+	LeaveCriticalSection(&KernelFS::cs);
+
+	Ind2Entry = (bytesCnt % (INDEX_SIZE * ClusterSize)) / ClusterSize;
+	headerAddr = index2[Ind2Entry];
+
+	EnterCriticalSection(&KernelFS::cs);
+	KernelFS::mountedPart->readCluster(headerAddr, (char*)header);
+	LeaveCriticalSection(&KernelFS::cs);
+
+	headerPointer = (bytesCnt % (INDEX_SIZE * ClusterSize)) % ClusterSize;
+}
+

@@ -1,11 +1,12 @@
 #pragma once
 #include "fs.h"
 #include "Cache.h"
-#include "OpenFileTable.h"
+
 #include "KernelFile.h"
 #include "Define.h"
 #include "BitVector.h"
-#include "CritSection.h"
+#include <map>
+
 
 #include "KernelFile.h"
 #include "particija-VS2017/part.h"
@@ -32,10 +33,21 @@ public:
 	static ClusterNo index2Addr;
 
 	static HeaderFields header[DATA_SIZE];
-	static HeaderFields headerAddr;
+	static ClusterNo headerAddr;
 
 
-	static CritSection * cs;
+	static int headerPointer;
+	static int Ind1Entry;
+	static int Ind2Entry;
+
+
+	static CONDITION_VARIABLE ConditionVar;
+	static CRITICAL_SECTION cs;
+
+	static std::map<int, OpenFiles*> openFileTable;
+	
+
+	
 
 	~KernelFS();
 
@@ -49,15 +61,16 @@ public:
 
 	//my methods
 	static File* getFile(char* fname, HeaderFields*);
-	static void scan();
+	static void scan();  
+	static void load(BytesCnt bytesCnt);
 	
 protected:
 	friend class FS;
 	friend class KernelFile;
 	KernelFS();
-	static OpenFileTable *openFiles;
-	static Partition * mountedPart;
+	static Cache * mountedPart;
 	static KernelFile * rootDir;
 	ClusterNo START_ADDR;
+
 };
 

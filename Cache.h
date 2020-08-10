@@ -3,7 +3,7 @@
 class Cache
 {
 public:
-	Cache(char * name);
+	Cache(Partition * name);
 	~Cache();
 
 	virtual ClusterNo getNumOfClusters() const; //vraca broj klastera koji pripadaju particiji

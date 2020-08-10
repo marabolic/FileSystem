@@ -1,7 +1,6 @@
 #pragma once
 #include "fs.h"
 #include "Define.h"
-#include "CritSection.h"
 #include <windows.h>
 
 class KernelFile
@@ -15,14 +14,19 @@ public:
 	ClusterNo index2[INDEX_SIZE];
 
 	ClusterNo dataAddr;
-	HeaderFields data[DATA_SIZE];
+	char data[ClusterSize];
+
 	
 	byte cursor;
+	int dataBytePointer;
+	int Ind1Entry;
+	int Ind2Entry;
+
+	int fileSize;
 
 	Mode mode;
 
 	~KernelFile();
-
 
 
 	char write(BytesCnt, char* buffer);
@@ -36,8 +40,10 @@ public:
 
 
 	void load(BytesCnt);
-	bool writeByte(char*);
-	bool readByte(char*);
+	void writeByte(char*, int);
+	char readByte();
+	bool canExtend();
+	void extend();
 
 
 	static ClusterNo allocate();

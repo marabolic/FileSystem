@@ -116,31 +116,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BitVector.h" />
-    <ClInclude Include="CritSection.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="Cache.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="fs.h" />
-    <ClInclude Include="javniTest\testprimer.h" />
     <ClInclude Include="KernelFile.h" />
     <ClInclude Include="KernelFS.h" />
-    <ClInclude Include="MMU.h" />
-    <ClInclude Include="OpenFileTable.h" />
     <ClInclude Include="particija-VS2017\part.h" />
+    <ClInclude Include="testprimer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BitVector.cpp" />
     <ClCompile Include="Cache.cpp" />
-    <ClCompile Include="CritSection.cpp" />
     <ClCompile Include="file.cpp" />
     <ClCompile Include="fs.cpp" />
-    <ClCompile Include="javniTest\main.cpp" />
-    <ClCompile Include="javniTest\nit1.cpp" />
-    <ClCompile Include="javniTest\nit2.cpp" />
     <ClCompile Include="KernelFile.cpp" />
     <ClCompile Include="KernelFS.cpp" />
-    <ClCompile Include="MMU.cpp" />
-    <ClCompile Include="OpenFileTable.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="nit1.cpp" />
+    <ClCompile Include="nit2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="particija-VS2017\particija.lib" />
