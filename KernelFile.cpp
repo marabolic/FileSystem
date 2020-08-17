@@ -12,17 +12,21 @@ KernelFile::~KernelFile() {
 
 }
 
- 
+  
 
 char KernelFile::write(BytesCnt bytesCnt, char* buffer) {
 	for (BytesCnt i = 0; i < bytesCnt; i++) {
-		if (! eof())
-			writeByte(buffer, i);
-		else {
+		if (eof()) {
 			if (canExtend()) {
 				extend();
 			}
-		}
+			else {
+				return '0';
+			}
+		} 
+		
+		writeByte(buffer, i);
+		
 	}
 }
 
@@ -52,17 +56,31 @@ char KernelFile::eof() {
 }
 
 BytesCnt KernelFile::getFileSize() { 
-	return fileSize;
+	return fileSize; 
 }
 
 char KernelFile::truncate() {
-	
+
+	for (ClusterNo i = Ind2Entry + 1; i < INDEX_SIZE; i++)
+	{
+		KernelFS::bitVector->reset(index2[i]);
+		index2[i] = 0;
+	}
+
+	for (ClusterNo i = Ind1Entry + 1; i < INDEX_SIZE; i++)
+	{
+		KernelFS::bitVector->reset(index1[i]);
+		index1[i] = 0;
+	}
+
+	fileSize = cursor;
+
 }
 
 
 
 void KernelFile::load(BytesCnt bytesCnt) {
-	EnterCriticalSection(&KernelFS::cs);
+	EnterCriticalSection(&KernelFS::cs); 
 	KernelFS::mountedPart->readCluster(index1Addr, (char*)index1);
 	LeaveCriticalSection(&KernelFS::cs);
 
@@ -73,7 +91,7 @@ void KernelFile::load(BytesCnt bytesCnt) {
 	KernelFS::mountedPart->readCluster(index2Addr, (char*)index2);
 	LeaveCriticalSection(&KernelFS::cs);
 
-	Ind2Entry = (bytesCnt % (INDEX_SIZE * ClusterSize)) / ClusterSize;
+	Ind2Entry = (bytesCnt % (INDEX_SIZE * ClusterSize)) / ClusterSize; 
 	dataAddr = index2[Ind2Entry];
 
 	EnterCriticalSection(&KernelFS::cs);
@@ -105,11 +123,34 @@ bool KernelFile::canExtend()
 }
 
 void KernelFile::extend() {
-	 
+
+	EnterCriticalSection(&KernelFS::cs);
+	KernelFS::mountedPart->writeCluster(index2Addr, (char*)index2);
+	LeaveCriticalSection(&KernelFS::cs);
+
+	//TODO
+	KernelFS::bitVector->reset(index2Addr);
+
+
+	if (Ind2Entry == INDEX_SIZE - 1) {
+
+		EnterCriticalSection(&KernelFS::cs);
+		KernelFS::mountedPart->writeCluster(index1Addr, (char*)index1);
+		LeaveCriticalSection(&KernelFS::cs);
+
+		//TODO
+		KernelFS::bitVector->reset(index1Addr);
+
+	}
+
+	seek(cursor + 1);
+	fileSize++;
+	
 }
 
 ClusterNo KernelFile::allocate() {
 	//find first empty in bitVector and return entry address
+
 }
 
 void KernelFile::deallocate(ClusterNo clusterNo) {

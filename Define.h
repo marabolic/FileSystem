@@ -13,8 +13,8 @@
 enum Mode { READONLY = 0, WRITEONLY = 1, READANDWRITE = 2 };
 
 struct HeaderFields {
-	char name[8];
-	char extension[3];
+	char name[FNAMELEN];
+	char extension[FEXTLEN];
 	char nothing;
 	uint32_t ind1;
 	BytesCnt fileSize;

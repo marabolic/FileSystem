@@ -8,7 +8,7 @@ class KernelFile
 public:
 	
 	ClusterNo index1Addr;
-	ClusterNo index1[INDEX_SIZE];
+	ClusterNo index1[INDEX_SIZE]; 
 
 	ClusterNo index2Addr;
 	ClusterNo index2[INDEX_SIZE];

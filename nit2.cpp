@@ -29,7 +29,7 @@ DWORD WINAPI nit2run(){
 
 	}
 	wait(mutex); cout<< threadName << ": wait 1"<<endl; signal(mutex);
-	wait(sem12); // ceka nit 1	 
+	wait(sem12); // ceka nit 1	
 	{
 		wait(mutex); cout << threadName << ": Broj fajlova na disku je " << FS::readRootDir() << endl; signal(mutex);
 	}

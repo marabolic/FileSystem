@@ -1,20 +1,20 @@
 #pragma once
 #include "Define.h"
+#include "KernelFS.h"
 #include <vector>
 using namespace std;
 
 class BitVector
 {
 private:
-
-	BitVector* next;
-
+	 
+	char *bits;
+	ClusterNo size, numOfClusters;
 public:
-	BitVector();
+	BitVector(ClusterNo size);
 	~BitVector();
-	void format();
-	void clearBit();
-	int size();
-	void init();
+	ClusterNo findFree();
+	void set(ClusterNo);
+	void reset(ClusterNo);
 };
 

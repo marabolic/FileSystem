@@ -24,7 +24,7 @@ class KernelFS
 {
 public:
 
-	static BitVector bitVector;
+	static BitVector * bitVector;
 
 	static ClusterNo index1[INDEX_SIZE];
 	static ClusterNo index1Addr;
@@ -46,7 +46,7 @@ public:
 
 	static std::map<int, OpenFiles*> openFileTable;
 	
-
+	static Cache* mountedPart;
 	
 
 	~KernelFS();
@@ -68,7 +68,6 @@ protected:
 	friend class FS;
 	friend class KernelFile;
 	KernelFS();
-	static Cache * mountedPart;
 	static KernelFile * rootDir;
 	ClusterNo START_ADDR;
 

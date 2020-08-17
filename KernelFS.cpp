@@ -45,7 +45,7 @@ char KernelFS::unmount() {
 
 char KernelFS::format() {
 	EnterCriticalSection(&cs);
-	bitVector.init();
+	bitVector = new BitVector(mountedPart->getNumOfClusters());
 	for (int i = 0; i < INDEX_SIZE; i++)
 	{
 		index1[i] = 0;
@@ -54,7 +54,7 @@ char KernelFS::format() {
 	LeaveCriticalSection(&cs);
 }
 
-FileCnt KernelFS::readRootDir() {
+FileCnt KernelFS::readRootDir()  {
 	FileCnt count = 0;
 	for (BytesCnt i = 0; i < INDEX_SIZE * INDEX_SIZE * DATA_SIZE; i++)
 	{
@@ -133,11 +133,12 @@ File* KernelFS::open(char* fname, char mode) {
 		}
 		if (openFileTable.count(headerPointer) == 0) {
 			OpenFiles* openfile = new OpenFiles();
-			openfile->writing++;
+			openfile->writing++; 
 			openFileTable.insert(pair<int, OpenFiles*>(headerPointer, openfile));
 		}
 		else {
-			//wait  ---- can't write
+			//TODO wait  ---- can't write 
+
 			openFileTable[headerPointer]->writing++; 
 			
 		}
@@ -168,7 +169,7 @@ char KernelFS::deleteFile(char* fname) {
 	char exists = doesExist(fname);
 	if (exists == '1'){
 		KernelFile * file = new KernelFile();
-		file->seek(0);
+		file->seek(0); 
 		file->truncate();
 	}
 				
@@ -179,7 +180,7 @@ char KernelFS::deleteFile(char* fname) {
 
 
 File* KernelFS::getFile(char* fname, HeaderFields* hf) {
-	
+	 
 }
 
 
@@ -192,20 +193,20 @@ void KernelFS::load(BytesCnt bytesCnt) {
 	KernelFS::mountedPart->readCluster(index1Addr, (char*)index1);
 	LeaveCriticalSection(&KernelFS::cs);
 
-	Ind1Entry = bytesCnt / (INDEX_SIZE * ClusterSize);
+	Ind1Entry = bytesCnt / (INDEX_SIZE * DATA_SIZE);
 	index2Addr = index1[Ind1Entry];
 
 	EnterCriticalSection(&KernelFS::cs);
 	KernelFS::mountedPart->readCluster(index2Addr, (char*)index2);
 	LeaveCriticalSection(&KernelFS::cs);
 
-	Ind2Entry = (bytesCnt % (INDEX_SIZE * ClusterSize)) / ClusterSize;
+	Ind2Entry = (bytesCnt % (INDEX_SIZE * DATA_SIZE)) / DATA_SIZE;
 	headerAddr = index2[Ind2Entry];
 
 	EnterCriticalSection(&KernelFS::cs);
 	KernelFS::mountedPart->readCluster(headerAddr, (char*)header);
 	LeaveCriticalSection(&KernelFS::cs);
 
-	headerPointer = (bytesCnt % (INDEX_SIZE * ClusterSize)) % ClusterSize;
+	headerPointer = (bytesCnt % (INDEX_SIZE * DATA_SIZE)) % DATA_SIZE;
 }
 
