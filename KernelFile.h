@@ -46,13 +46,10 @@ public:
 	void extend();
 
 
-	static ClusterNo allocate();
-	static void deallocate(ClusterNo);
-	
-
 private:
 	friend class KernelFS;
 	friend class File;
+	KernelFile(HeaderFields);
 	KernelFile();
 
 };

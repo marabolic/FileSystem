@@ -4,15 +4,12 @@
 
 
 
-Cache * KernelFS::mountedPart = nullptr;
-
-
 KernelFS::KernelFS() {
 	mountedPart = nullptr;
 }
 
 KernelFS::~KernelFS() {
-	
+	delete mountedPart;
 }
 
 char KernelFS::mount(Partition * partition) {
@@ -33,6 +30,11 @@ char KernelFS::mount(Partition * partition) {
 char KernelFS::unmount() {
 	if (mountedPart != nullptr) {
 		EnterCriticalSection(&cs);
+		if (!openFileTable.empty()) {
+			LeaveCriticalSection(&cs);
+			return '0';
+		} 
+
 		mountedPart = nullptr;
 		delete mountedPart;
 		LeaveCriticalSection(&cs);
@@ -46,11 +48,7 @@ char KernelFS::unmount() {
 char KernelFS::format() {
 	EnterCriticalSection(&cs);
 	bitVector = new BitVector(mountedPart->getNumOfClusters());
-	for (int i = 0; i < INDEX_SIZE; i++)
-	{
-		index1[i] = 0;
-	}
-	rootDir = new KernelFile();
+	memset(index1, 0, INDEX_SIZE);
 	LeaveCriticalSection(&cs);
 }
 
@@ -104,11 +102,14 @@ char KernelFS::doesExist(char* fname) {
 	return found;
 }
 
+
+
 File* KernelFS::open(char* fname, char mode) {
 	
 	char exists = doesExist(fname);
 
-	KernelFile* file = new KernelFile();
+	File* file = new File(); 
+	file->myImpl = new KernelFile(header[headerPointer]);
 	//file->index1Addr = header[headerPointer].ind1;
 
 	switch (mode)
@@ -125,35 +126,43 @@ File* KernelFS::open(char* fname, char mode) {
 		else {
 			openFileTable[headerPointer]->reading++;
 		}
+		file->myImpl->mode = READONLY;
 
 		break;
 	case 'w':
 		if (exists == '1') {
-			deleteFile(fname);
+			file->seek(0);
+			file->truncate();
 		}
 		if (openFileTable.count(headerPointer) == 0) {
 			OpenFiles* openfile = new OpenFiles();
-			openfile->writing++; 
+			openfile->writing++;   
 			openFileTable.insert(pair<int, OpenFiles*>(headerPointer, openfile));
 		}
 		else {
-			//TODO wait  ---- can't write 
-
+			//TODO 
+			SleepConditionVariableCS(&readWrite, &cs, INFINITE);
 			openFileTable[headerPointer]->writing++; 
 			
 		}
-		//new file
-		//add to map
+		file->myImpl->mode = WRITEONLY;
+
 		break;
 	case 'a':
 		if (exists == '0') {
 			return nullptr;
 		}
-		if (openFileTable.count(headerPointer) == 0) {  
+		if (openFileTable.count(headerPointer)  == 0) {  
 			OpenFiles* openfile = new OpenFiles();
 			openfile->writing++;
 			openFileTable.insert(pair<int, OpenFiles*>(headerPointer, openfile));
 		}
+		else {
+			//TODO 
+			SleepConditionVariableCS(&readWrite, &cs, INFINITE);
+			openFileTable[headerPointer]->writing++;
+		}
+		file->myImpl->mode = READANDWRITE;
 		file->seek(header[headerAddr].fileSize);
 
 		break;
@@ -162,6 +171,7 @@ File* KernelFS::open(char* fname, char mode) {
 		break;
 	}
 
+	return file;
 	 
 }
 
@@ -171,12 +181,9 @@ char KernelFS::deleteFile(char* fname) {
 		KernelFile * file = new KernelFile();
 		file->seek(0); 
 		file->truncate();
-	}
-				
+	}		
 }
  
-
-
 
 
 File* KernelFS::getFile(char* fname, HeaderFields* hf) {

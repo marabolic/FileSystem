@@ -1,5 +1,6 @@
 #pragma once
 #include "fs.h"
+#include "file.h"
 #include "Cache.h"
 
 #include "KernelFile.h"
@@ -41,7 +42,9 @@ public:
 	static int Ind2Entry;
 
 
-	static CONDITION_VARIABLE ConditionVar;
+	static CONDITION_VARIABLE readWrite;
+	static CONDITION_VARIABLE openedFiles;
+
 	static CRITICAL_SECTION cs;
 
 	static std::map<int, OpenFiles*> openFileTable;
@@ -67,6 +70,7 @@ public:
 protected:
 	friend class FS;
 	friend class KernelFile;
+	friend class File;
 	KernelFS();
 	static KernelFile * rootDir;
 	ClusterNo START_ADDR;
