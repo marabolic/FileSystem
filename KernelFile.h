@@ -22,6 +22,9 @@ public:
 	ClusterNo Ind1Entry;
 	ClusterNo Ind2Entry;
 
+
+	HeaderFields headerAddr;
+
 	int index2Set;
 	int dataSet;
 
@@ -52,7 +55,7 @@ public:
 private:
 	friend class KernelFS;
 	friend class File;
-	KernelFile(HeaderFields);
+	KernelFile(HeaderFields, Mode);
 	KernelFile();
 
 };

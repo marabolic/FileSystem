@@ -24,10 +24,11 @@ KernelFS::KernelFS() {
 }
 
 KernelFS::~KernelFS() {
-
+	EnterCriticalSection(&cs);
 	mountedPart->writeCluster(headerAddr, (char*)header);
 	mountedPart->writeCluster(index2Addr, (char*)index2);
 	mountedPart->writeCluster(index1Addr, (char*)index1);
+	LeaveCriticalSection(&cs);
 
 	delete mountedPart;
 	delete bitVector;
@@ -40,8 +41,6 @@ char KernelFS::mount(Partition * partition) {
 	
 	InitializeCriticalSection(&cs);
 	InitializeConditionVariable(&readWrite);
-	
-	
 
 	if (mountedPart == nullptr) {
 		EnterCriticalSection(&cs);
@@ -69,9 +68,7 @@ char KernelFS::unmount() {
 			return '0';
 		} 
 		//change
-		EnterCriticalSection(&KernelFS::cs);
 		KernelFS::mountedPart->writeCluster(index1Addr, (char*)index2);
-		LeaveCriticalSection(&KernelFS::cs);
 
 		mountedPart = nullptr;
 		delete mountedPart;
@@ -209,7 +206,8 @@ File* KernelFS::open(char* fname, char mode) {
 		
 
 		file = new File();
-		file->myImpl = new KernelFile(header[headerPointer]);
+		
+		file->myImpl = new KernelFile(header[headerPointer], READONLY);
 
 
 		if (kernelFS->openFileTable.count(header[headerPointer].ind1) == 0) {
@@ -245,7 +243,7 @@ File* KernelFS::open(char* fname, char mode) {
 			strcpy(header[headerPointer].name, fname);
 			header[headerPointer].fileSize = 0;
 
-			file->myImpl = new KernelFile(header[headerPointer]);
+			file->myImpl = new KernelFile(header[headerPointer], WRITEONLY);
 			file->seek(0);
 		}
 		if (openFileTable.count(header[headerPointer].ind1) == 0) {
@@ -269,7 +267,7 @@ File* KernelFS::open(char* fname, char mode) {
 		}
 
 		file = new File();
-		file->myImpl = new KernelFile(header[headerPointer]);
+		file->myImpl = new KernelFile(header[headerPointer], READANDWRITE);
 
 
 		if (openFileTable.count(header[headerPointer].ind1)  == 0) {
@@ -329,19 +327,19 @@ void KernelFS::findFreeEntry() {
 					for (ClusterNo k = 0; k < DATA_SIZE; k++)
 					{
 						headerPointer = k;
-						if (strcmp(header[k].name, "\0\0\0\0\0\0\0") == 0) {
-
+						if (memcmp(header[k].name, "\0\0\0\0\0\0\0", FNAMELEN) == 0) {
 							return;
 						}
 					}
 				}
 				else {
-					headerAddr = bitVector->findFree();
-					//change
 					EnterCriticalSection(&KernelFS::cs);
 					KernelFS::mountedPart->writeCluster(headerAddr, (char*)header);
 					LeaveCriticalSection(&KernelFS::cs);
-					memset(header, 0, DATA_SIZE);
+
+					headerAddr = bitVector->findFree();
+					
+					memset(header, 0, ClusterSize);
 					index2[Ind2Entry] = headerAddr;
 					headerPointer = 0;
 					return;
@@ -350,22 +348,24 @@ void KernelFS::findFreeEntry() {
 		}
 		else {
 
-			index2Addr = bitVector->findFree();
-			//change
 			EnterCriticalSection(&KernelFS::cs);
-			KernelFS::mountedPart->writeCluster(index1Addr, (char*)index2);
+			KernelFS::mountedPart->writeCluster(index2Addr, (char*)index2);
 			LeaveCriticalSection(&KernelFS::cs);
-			memset(index2, 0, INDEX_SIZE);
+
+			index2Addr = bitVector->findFree();
+			memset(index2, 0, ClusterSize);
 			index1[Ind1Entry] = index2Addr;
 			Ind2Entry = 0;
 
-			headerAddr = bitVector->findFree();
 			EnterCriticalSection(&KernelFS::cs);
 			KernelFS::mountedPart->writeCluster(headerAddr, (char*)header);
 			LeaveCriticalSection(&KernelFS::cs);
-			memset(header, 0, DATA_SIZE);
+
+			headerAddr = bitVector->findFree();
+			memset(header, 0, ClusterSize);
 			index2[Ind2Entry] = headerAddr;
 			headerPointer = 0;
+			
 			return;
 		}
 	}

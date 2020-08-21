@@ -4,15 +4,17 @@
 
 
 
-KernelFile::KernelFile(HeaderFields headerAddr) {
+KernelFile::KernelFile(HeaderFields headerAddr, Mode mode) {
+	this->headerAddr = headerAddr;
 	index1Addr = headerAddr.ind1;
 	fileSize = headerAddr.fileSize;
+	this->mode = mode;
 	cursor = 0;
 	dataBytePointer = 0;
 	index2Set = 0;
 	dataSet = 0;
 	
-	if (mode == READONLY) {
+	if (mode != WRITEONLY) {
 		EnterCriticalSection(&KernelFS::cs);
 		KernelFS::mountedPart->readCluster(index1Addr, (char*)index1);
 		LeaveCriticalSection(&KernelFS::cs);
@@ -36,6 +38,10 @@ KernelFile::~KernelFile() {
 		KernelFS::mountedPart->writeCluster(dataAddr, (char*)data);
 		KernelFS::mountedPart->writeCluster(index2Addr, (char*)index2);
 		KernelFS::mountedPart->writeCluster(index1Addr, (char*)index1);
+		this->headerAddr.fileSize = fileSize;
+		KernelFS::doesExist(this->headerAddr.name);
+		KernelFS::header[KernelFS::headerPointer] = this->headerAddr;
+		KernelFS::mountedPart->writeCluster(KernelFS::headerAddr, (char*)KernelFS::header);
 	}
 
 
@@ -224,7 +230,7 @@ void KernelFile::extend() {
 			if (fileSize != 0) {
 				KernelFS::mountedPart->writeCluster(index2Addr, (char*)index2);
 			}
-			memset(index2, 0, INDEX_SIZE);
+			memset(index2, 0, ClusterSize);
 			index2Addr = freeIndex;
 			index1[Ind1Entry] = index2Addr;
 			LeaveCriticalSection(&KernelFS::cs);
