@@ -3,7 +3,7 @@
 
 
 File::File() {
-	myImpl = new KernelFile();
+	
 }
 
 File::~File() {
@@ -15,7 +15,7 @@ char File::write(BytesCnt cnt, char* buffer) {
 }
 
 BytesCnt File::read(BytesCnt cnt, char* buffer) {
-	return myImpl->write(cnt, buffer);
+	return myImpl->read(cnt, buffer);
 }
 
 char File::seek(BytesCnt cnt) {

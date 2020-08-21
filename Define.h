@@ -1,12 +1,13 @@
 #pragma once
 #include "particija-VS2017/part.h"
+#include "fs.h"
+#include <windows.h>
 #include <stdint.h>
 
 #define INDEX_SIZE ClusterSize / sizeof(ClusterNo)   //256
 #define DATA_SIZE ClusterSize / sizeof(HeaderFields) //64
 
-#define signal(x) ReleaseSemaphore(x,1,NULL)
-#define wait(x) WaitForSingleObject(x,INFINITE)
+
 
 //typedef char byte;
 
@@ -16,7 +17,7 @@ struct HeaderFields {
 	char name[FNAMELEN];
 	char extension[FEXTLEN];
 	char nothing;
-	uint32_t ind1;
+	ClusterNo ind1;
 	BytesCnt fileSize;
 	char freeBytes[12];
 };

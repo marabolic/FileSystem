@@ -1,7 +1,7 @@
 #pragma once
 #include "fs.h"
 #include "Define.h"
-#include <windows.h>
+
 
 class KernelFile
 {
@@ -17,12 +17,15 @@ public:
 	char data[ClusterSize];
 
 	
-	byte cursor;
-	int dataBytePointer;
-	int Ind1Entry;
-	int Ind2Entry;
+	BytesCnt cursor;
+	ClusterNo dataBytePointer;
+	ClusterNo Ind1Entry;
+	ClusterNo Ind2Entry;
 
-	int fileSize;
+	int index2Set;
+	int dataSet;
+
+	ClusterNo fileSize;
 
 	Mode mode;
 

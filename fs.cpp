@@ -1,13 +1,15 @@
 #include "fs.h"
 #include "KernelFS.h"
+#include "Define.h"
 
+KernelFS* FS::myImpl = KernelFS::kernelFS;
 
 FS::FS() {
-	myImpl = new KernelFS();
+	
 }
 
 FS::~FS() {
-	delete myImpl;
+	
 }
 
 char FS::mount(Partition* partition) { 
@@ -31,7 +33,7 @@ char FS::doesExist(char* fname) {
 }
 
 File* FS::open(char* fname, char mode) {
-	//return myImpl->open(fname, mode);
+	return myImpl->open(fname, mode);
 }
 
 char FS::deleteFile(char* fname) {

@@ -3,29 +3,28 @@
 #include "file.h"
 #include "Cache.h"
 
-#include "KernelFile.h"
-#include "Define.h"
+//#include "Define.h"
 #include "BitVector.h"
 #include <map>
 
-
 #include "KernelFile.h"
-#include "particija-VS2017/part.h"
+//#include "particija-VS2017/part.h"
+
 class KernelFS;
 class Partition;
 class File;
 class CritSection;
 class Index1;
+class BitVector;
+class Cache;
 
 
-//typedef char byte;
+class KernelFS {
 
-
-class KernelFS
-{
 public:
 
-	static BitVector * bitVector;
+ 
+	static BitVector* bitVector;
 
 	static ClusterNo index1[INDEX_SIZE];
 	static ClusterNo index1Addr;
@@ -37,9 +36,9 @@ public:
 	static ClusterNo headerAddr;
 
 
-	static int headerPointer;
-	static int Ind1Entry;
-	static int Ind2Entry;
+	static ClusterNo headerPointer;
+	static ClusterNo Ind1Entry;
+	static ClusterNo Ind2Entry;
 
 
 	static CONDITION_VARIABLE readWrite;
@@ -47,7 +46,7 @@ public:
 
 	static CRITICAL_SECTION cs;
 
-	static std::map<int, OpenFiles*> openFileTable;
+	static std::map<ClusterNo, OpenFiles*> openFileTable;
 	
 	static Cache* mountedPart;
 	
@@ -63,16 +62,17 @@ public:
 	static char deleteFile(char* fname);
 
 	//my methods
-	static File* getFile(char* fname, HeaderFields*);
-	static void scan();  
 	static void load(BytesCnt bytesCnt);
+	static void findFreeEntry();
 	
 protected:
 	friend class FS;
 	friend class KernelFile;
 	friend class File;
+	friend class BitVector;
 	KernelFS();
-	static KernelFile * rootDir;
+	//static KernelFile * rootDir;
+	static KernelFS * kernelFS;
 	ClusterNo START_ADDR;
 
 };
